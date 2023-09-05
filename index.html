@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mood swing Dapp</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .app-container {
+            width: 300px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: fade-in 0.5s ease-in-out;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #showMood {
+            font-weight: bold;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        @keyframes fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1>This is my Swing Mood Dapp</h1>
+    <p>Here we can set or get the mood:</p>
+    <label for="mood">Input Mood:</label> <br />
+    <input type="text" id="mood" />
+
+    <button onclick="getMood()">Get Mood</button>
+    <button onclick="setMood()">Set Mood</button>
+    <p id="showMood"></p>
+</div>
+<script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+<script>
+    // Replace the following two values
+    const MoodContractAddress = "0x97FF8d7fa8dBb034cc787252c02F9D1DDB3f8ABf"; // Enclose the address in quotes
+    const MoodContractABI =[
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_mood",
+				"type": "string"
+			}
+		],
+		"name": "setMood",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMood",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+
+    // Currently these two are undefined, we will use Ethers to assign them values
+    let MoodContract = undefined;
+    let signer = undefined;
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "sepolia");
+    provider.send("eth_requestAccounts", []).then(() => {
+        provider.listAccounts().then((accounts) => {
+            signer = provider.getSigner(accounts[0]);
+            MoodContract = new ethers.Contract(
+                MoodContractAddress,
+                MoodContractABI,
+                signer
+            );
+        });
+    });
+
+    async function getMood() {
+        const mood = await MoodContract.getMood();
+        document.getElementById("showMood").innerText = `Your Mood: ${mood}`;
+        console.log(mood);
+    }
+
+    async function setMood() {
+        const mood = document.getElementById("mood").value;
+        await MoodContract.setMood(mood);
+
+
+
+       
+    }
+        
+    
+</script>
+</body>
+</html>
